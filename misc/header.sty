@@ -6,6 +6,7 @@
             left=2cm,
             right=2cm]{geometry}
 \usepackage{forloop}
+\usepackage{listings}
 
 % Optional additional packages, used in all task catalogues
 \usepackage{amssymb,amsmath}
@@ -20,14 +21,17 @@
 \def\code#1{ % Code box with borders
     \centerline{
         \fbox{
-            \vbox{\parskip=0pt\small\obeylines\input
-            \codepath #1 }
+            \vbox{
+                \parskip=0pt\small\obeylines\input
+                \lstinputlisting{\codepath #1}
+            }
         }
     }
 }
 \def\codenobox#1{ % Code box without borders
     \par{
-        \obeylines\parskip=0pt\small \input \codepath #1
+        \obeylines\parskip=0pt\small
+        \lstinputlisting{\codepath #1}
     }
 }
 
@@ -177,6 +181,11 @@
 
 
 %%%%% Makros used in task catalogue %%%%%
+
+\newcommand{\cataloguetasks}{
+    \input{\cataloguepath}
+}
+
 
 % Arguments (1):
 % 1: Title of the catalogue section
