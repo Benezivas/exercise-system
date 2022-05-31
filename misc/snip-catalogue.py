@@ -81,7 +81,6 @@ for line in lines:
     elif in_exercise:
         text.append(line)
 
-#list all subdirectories of the top repo levels directories
 possibly_relevant_directories = sum([list(dir.iterdir()) for dir in Path("../../").iterdir() if dir.is_dir()], [])
 
 #we are only interested in those that resemble a semester folder
@@ -129,3 +128,4 @@ with open("collection-expanded.tex", "r") as input:
                 in_solution = False
             if not in_solution:
                 output.write(line.strip())
+                output.write("\n")
