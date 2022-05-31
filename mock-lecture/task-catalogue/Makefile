@@ -8,7 +8,7 @@ clean:
 snippets:
 	python3 ../../misc/snip-catalogue.py task-catalogue.tex
 
-catalogue/catalogue_sol.pdf: catalogue.tex mock-lecture-header.sty snippets task-catalogue.tex ../../misc/snip-catalogue.py
+catalogue/catalogue_sol.pdf: catalogue.tex mock-lecture-header.sty task-catalogue.tex ../../misc/snip-catalogue.py
 	mkdir -p catalogue;
 	pdflatex -output-directory catalogue -jobname=catalogue     "\def\catalogue{} \input{$<}";
 	pdflatex -output-directory catalogue -jobname=catalogue     "\def\catalogue{} \input{$<}";
