@@ -3,8 +3,10 @@
 */20*/*.pdf
 */20*/sheet*/*
 */20*/exam*/*
-*/task-catatalogue/*.aux
-*/task-catatalogue/*.log
-*/task-catatalogue/*.pdf
-*/task-catatalogue/collection-expanded.tex
-*/task-catatalogue/collection-nosolutions.tex
+*/task-catalogue/*.aux
+*/task-catalogue/*.log
+*/task-catalogue/*.pdf
+*/task-catalogue/collection-expanded.tex
+*/task-catalogue/collection-nosolutions.tex
+*/task-catalogue/snaps
+*/task-catalogue/catalogue
