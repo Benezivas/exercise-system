@@ -1,0 +1,226 @@
+% Packages used for internal makros
+\usepackage[utf8]{inputenc}
+\usepackage[a4paper,
+            top=1.5cm,
+            bottom=2cm,
+            left=2cm,
+            right=2cm]{geometry}
+\usepackage{forloop}
+
+% Optional additional packages, used in all task catalogues
+\usepackage{amssymb,amsmath}
+
+% Optional userdefined makros, used in all task catalogues
+\def\N{{\bf N}}
+\def\R{{\bf R}}
+\def\Z{{\bf Z}}
+
+% Static makros
+\providecommand{\grouplogo}{logo.png}
+\def\code#1{ % Code box with borders
+    \centerline{
+        \fbox{
+            \vbox{\parskip=0pt\small\obeylines\input
+            \codepath #1 }
+        }
+    }
+}
+\def\codenobox#1{ % Code box without borders
+    \par{
+        \obeylines\parskip=0pt\small \input \codepath #1
+    }
+}
+
+% Folder-dependent makros, overloaded in each folder
+\newcommand{\collectionpath}{} % Path to task catalogue
+\newcommand{\fig}{} % Path to figures used in the task catalogue
+\newcommand{\codepath}{} % Path to code snippets used in the task catalogue
+
+\providecommand{\lecturename}{}
+\providecommand{\lecturer}{}
+\providecommand{\assistents}{}
+\providecommand{\semester}{}
+
+% Language-dependent overloaded makros
+\providecommand{\taskstr}{}
+\providecommand{\solutionstr}{}
+\providecommand{\datestr}{}
+\providecommand{\withsolsstr}{}
+
+% Boolean switches provided by pdflatex calls to steer what should be built and what should not
+\newbool{SOLUTION} % Should solution be part of the sheet?
+\newbool{NOHOMEWORK} % Should homework tasks be part of the sheet? 
+\newbool{KATALOG} % Are we in the catalogue? (additional spacing added)
+\newbool{SCHEME} % Should the solution scheme be added?
+\newbool{EXAM} % Are we in an exam?
+
+% Check which flags were set by the pdflatex call
+\ifdef{\solution}{\booltrue{SOLUTION}}{\boolfalse{SOLUTION}}
+\ifdef{\tutsol}{\booltrue{NOHOMEWORK}}{\boolfalse{NOHOMEWORK}}
+\ifdef{\katalog}{\booltrue{CATALOGUE}}{\boolfalse{CATALOGUE}}
+\ifdef{\schema}{\booltrue{SCHEME}}{\boolfalse{SCHEME}}
+\ifdef{\klausur}{\booltrue{EXAM}}{\boolfalse{EXAM}}
+
+\ifbool{SOLUTION}{\newcommand{\cataloguepath}{collection-expanded.tex}}
+                 {\newcommand{\cataloguepath}{collection-nosolutions.tex}}
+
+% Counters used for counting up tasks inside a sheet/exam
+\newcounter{Tcount} % Tutor tasks
+\newcounter{Hcount} % Homework tasks
+\newcounter{Kcount} % Exam tasks
+\stepcounter{Kcount}
+
+
+
+%%%%% Makros used to build sheets %%%%%
+
+% Arguments (3): 
+% 1: Date of sheet
+% 2: Name of sheet (e.g. "Exercise Sheet")
+% 3: Running number of sheet (e.g. "03" for sheet03.tex)
+\newcommand{\buildheader}[3]{
+    \providecommand{\date}{#1}
+    \providecommand{\name}{#2}
+    \providecommand{\number}{#3}
+    \noindent\parbox[l]{0.6\textwidth}{\textbf{\lecturename{} \semester}\\ \lecturer\\ \assistents}
+    \noindent\parbox[r]{0.4\textwidth}{\hfill
+    \includegraphics[scale=0.5]{\grouplogo}\kern-7pt\\\makebox[0.4\textwidth][r]{\datumstr: \date{}}}\\
+
+    \begin{center}
+        \large\centerline{\bf 
+        \ifdefined\solution 
+            \name{} \withsolsstr{}
+        \else 
+            \name{}
+        \fi 
+        \ifx\catalogue\undefined
+            \number{}
+        \fi
+        }
+        \ifbool{SCHEME}{\bigskip\textit{This document is not meant to be published to students!}}{}
+    \end{center}
+}
+
+
+%%%% TODO: Merge these three task types into one %%%%
+% Arguments (1):
+% 1: Interal name of task
+\newcommand{\tutortask}[1]{
+    \def\taskstring{\paragraph*{\taskstr{} T\arabic{Tcount}}%
+                    \def\@currentlabel{T\arabic{Tcount}}\label{#1}~\par
+                    \stepcounter{Tcount}
+    }
+    \taskstring
+    \providebool{#1}
+    \booltrue{#1}
+    \input {\collectionpath snaps/#1}
+    \ifbool{LOESUNG}{
+        \paragraph*{\solutionstr{}}~\par\input {\collectionpath snaps/#1-solution}
+    }
+    {}
+    \boolfalse{#1}
+}
+
+
+% Arguments (2):
+% 1: Interal name of task
+% 2: Number of possible points for task
+\newcommand{\homework}[2]{
+    \ifbool{NOHOMEWORK}{}{
+        \def\taskstring{\paragraph*{\taskstr{} H\arabic{Hcount}}(#2)
+                        \def\@currentlabel{H\arabic{Hcount}}\label{#1}~\par
+                        \stepcounter{Hcount}
+        }
+        \taskstring
+        \providebool{#1}
+        \booltrue{#1}
+        \input {\collectionpath snaps/#1}
+        \ifbool{SOLUTION}{
+            \paragraph*{\solutionstr{}}~\par\input {\collectionpath snaps/#1-solution}
+        }
+        {}
+        \boolfalse{#1}
+    }
+}
+
+
+% Arguments (2): 
+% 1: Interal name of task
+% 2: Number of possible points for task
+\newcommand{\examtask}[2]{
+    \def\taskstring{\paragraph*{\taskstr{} E\arabic{Kcount}}(#2)
+                        \def\@currentlabel{E\arabic{Kcount}}\label{#1}~\par
+                        \stepcounter{Kcount}
+    }
+    \taskstring
+    \providebool{#1}
+    \booltrue{#1}
+    \input {\collectionpath snaps/#1}
+    \boolfalse{#1}
+    \ifbool{LOESUNG}{
+        \paragraph*{\solutionstr{}}~\par\input {\collectionpath snaps/#1-solution}
+    }
+    {}
+}
+
+
+% Arguments (1):
+% 1: The number of empty pages to be generated
+\newcounter{forcounter}
+\newcommand{\addpages}[1]{
+    \forloop{forcounter}{0}{\value{forcounter} < #1}{
+        \clearpage
+        \buildheader{\date{}}{\name{}}{\number{}}
+    }
+}
+
+
+
+%%%%% Makros used in task catalogue %%%%%
+
+% Arguments (1):
+% 1: Title of the catalogue section
+\newcommand{\cataloguesection}[1]{
+    \ifbool{CATALOGUE}{
+        \subsection{#1}
+    }{}
+}
+
+
+% Arguments (1):
+% 1: Name of the lecture
+\newcommand{\lecture}[1]{
+    \ifbool{CATALOGUE}{
+        \clearpage
+        \section{#1}
+    }{}
+}
+
+
+% Environment for defining tasks in the catalogue
+% Arguments (1):
+% 1: The task text
+\newenvironment{task}[1]{\paragraph{\aufgabestr{} \fbox{\tt#1}}~\par
+                         \protected@write\@auxout{}{\string\newlabel{#1}{{{\tt#1}}{}}}{\goodbreak}
+}
+
+% Solution string to separate the task text and its solution
+\def\solution{\paragraph*{\solutionstr{}}~\par}
+
+
+% Box not displayed in solution documents
+% Arguments (2): 
+% 1: Width of box
+% 2: Height of box
+\def\Box(#1,#2){\ifbool{LOESUNG}{}{\framebox{\vrule width 0pt height #2mm\vrule width #1mm
+    height 0pt}}}
+
+% Box displayed only in exam documents
+% Arguments (2): 
+% 1: Width of box
+% 2: Height of box
+\def\KBox(#1,#2){\ifbool{KLAUSUR}{\Box(#1,#2)}{}}
+
+% Arguments (1):
+% The solution scheme text
+\newcommand{\solscheme}[1]{\ifbool{SCHEME}{[\textit{#1}]}{}}

@@ -1,0 +1,70 @@
+\lecturename{The Mock Lecture}
+\katalogsection{On Foos and Bars}
+
+\begin{task}{hello-world}
+What is the most common string that is first printed when learning a new programming language?
+    
+\solution
+
+``Hello World!''
+\end{task}
+
+
+
+\begin{task}{foobar}
+Foo?
+    
+\solution
+
+Bar!
+\end{task}
+
+
+
+\begin{task}{figureexample}
+This is how you reference a figure used in the figure folder of the task catalogue:
+
+\centerline{\includegraphics{\fig smiley.png}}
+
+Make sure that the $\backslash \text{fig}$ makro is properly set in the semesters \verb!header.sty!.
+\end{task}
+
+
+
+\begin{task}{nosol}
+This task has no solution, but this is no problem.
+\end{task}
+
+
+
+\begin{task}{boxexample}
+Here is a codebox:
+
+\code{hello.py}
+
+And here is the same code in a box without a frame:
+
+\codenobox{hello.py}
+
+Here is a box that is only displayed outside of solution documents: \Box(20, 20)
+
+Here is another box that is only displayed inside an exam: \KBox(20, 20)
+
+\solution
+
+This box is never displayed: \Box(20, 20)
+
+\end{task}
+
+
+
+\begin{task}{reftask}
+
+This task is curios, it references the counter of another task, namely that of
+task~\ref{boxexample}.
+
+\solution
+
+This does not work if the internal task name does not exist:~\ref{abc}.
+
+\end{task}
