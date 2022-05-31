@@ -8,7 +8,8 @@
 \usepackage{forloop}
 \usepackage{listings}
 \usepackage{etoolbox}
-\usepackage{datetime}
+\usepackage[yyyymmdd]{datetime}
+\renewcommand{\dateseparator}{-}
 \usepackage{graphicx}
 \usepackage{xcolor}
 
@@ -87,12 +88,10 @@
 % 2: Name of sheet (e.g. "Exercise Sheet")
 % 3: Running number of sheet (e.g. "03" for sheet03.tex)
 \newcommand{\buildheader}[3]{
-    \providecommand{\date}{#1}
     \providecommand{\name}{#2}
-    \providecommand{\number}{#3}
     \noindent\parbox[l]{0.6\textwidth}{\textbf{\lecturename{} \semester}\\ \lecturer\\ \assistents}
     \noindent\parbox[r]{0.4\textwidth}{\hfill
-    \includegraphics[scale=0.5]{\logo}\kern-7pt\\\makebox[0.4\textwidth][r]{\datestr: \date{}}}\\
+    \includegraphics[scale=0.5]{\logo}\kern-7pt\\\makebox[0.4\textwidth][r]{\datestr: #1}}\\
 
     \begin{center}
         \large\centerline{\bf 
@@ -102,7 +101,7 @@
             \name{}
         \fi 
         \ifx\catalogue\undefined
-            \number{}
+            #3
         \fi
         }
         \ifbool{SCHEME}{\bigskip\textit{This document is not meant to be published to students!}}{}
