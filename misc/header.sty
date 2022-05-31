@@ -7,6 +7,10 @@
             right=2cm]{geometry}
 \usepackage{forloop}
 \usepackage{listings}
+\usepackage{etoolbox}
+\usepackage{datetime}
+\usepackage{graphicx}
+\usepackage{xcolor}
 
 % Optional additional packages, used in all task catalogues
 \usepackage{amssymb,amsmath}
@@ -17,7 +21,7 @@
 \def\Z{{\bf Z}}
 
 % Static makros
-\providecommand{\grouplogo}{logo.png}
+\providecommand{\logo}{logo.png}
 \def\code#1{ % Code box with borders
     \centerline{
         \fbox{
@@ -54,16 +58,16 @@
 % Boolean switches provided by pdflatex calls to steer what should be built and what should not
 \newbool{SOLUTION} % Should solution be part of the sheet?
 \newbool{NOHOMEWORK} % Should homework tasks be part of the sheet? 
-\newbool{KATALOG} % Are we in the catalogue? (additional spacing added)
+\newbool{CATALOGUE} % Are we in the catalogue? (additional spacing added)
 \newbool{SCHEME} % Should the solution scheme be added?
 \newbool{EXAM} % Are we in an exam?
 
 % Check which flags were set by the pdflatex call
 \ifdef{\solution}{\booltrue{SOLUTION}}{\boolfalse{SOLUTION}}
 \ifdef{\tutsol}{\booltrue{NOHOMEWORK}}{\boolfalse{NOHOMEWORK}}
-\ifdef{\katalog}{\booltrue{CATALOGUE}}{\boolfalse{CATALOGUE}}
-\ifdef{\schema}{\booltrue{SCHEME}}{\boolfalse{SCHEME}}
-\ifdef{\klausur}{\booltrue{EXAM}}{\boolfalse{EXAM}}
+\ifdef{\catalogue}{\booltrue{CATALOGUE}}{\boolfalse{CATALOGUE}}
+\ifdef{\scheme}{\booltrue{SCHEME}}{\boolfalse{SCHEME}}
+\ifdef{\exam}{\booltrue{EXAM}}{\boolfalse{EXAM}}
 
 \ifbool{SOLUTION}{\newcommand{\cataloguepath}{collection-expanded.tex}}
                  {\newcommand{\cataloguepath}{collection-nosolutions.tex}}
@@ -88,7 +92,7 @@
     \providecommand{\number}{#3}
     \noindent\parbox[l]{0.6\textwidth}{\textbf{\lecturename{} \semester}\\ \lecturer\\ \assistents}
     \noindent\parbox[r]{0.4\textwidth}{\hfill
-    \includegraphics[scale=0.5]{\grouplogo}\kern-7pt\\\makebox[0.4\textwidth][r]{\datumstr: \date{}}}\\
+    \includegraphics[scale=0.5]{\logo}\kern-7pt\\\makebox[0.4\textwidth][r]{\datestr: \date{}}}\\
 
     \begin{center}
         \large\centerline{\bf 
@@ -118,7 +122,7 @@
     \providebool{#1}
     \booltrue{#1}
     \input {\collectionpath snaps/#1}
-    \ifbool{LOESUNG}{
+    \ifbool{SOLUTION}{
         \paragraph*{\solutionstr{}}~\par\input {\collectionpath snaps/#1-solution}
     }
     {}
@@ -161,7 +165,7 @@
     \booltrue{#1}
     \input {\collectionpath snaps/#1}
     \boolfalse{#1}
-    \ifbool{LOESUNG}{
+    \ifbool{SOLUTION}{
         \paragraph*{\solutionstr{}}~\par\input {\collectionpath snaps/#1-solution}
     }
     {}
@@ -209,7 +213,7 @@
 % Environment for defining tasks in the catalogue
 % Arguments (1):
 % 1: The task text
-\newenvironment{task}[1]{\paragraph{\aufgabestr{} \fbox{\tt#1}}~\par
+\newenvironment{task}[1]{\paragraph{\taskstr{} \fbox{\tt#1}}~\par
                          \protected@write\@auxout{}{\string\newlabel{#1}{{{\tt#1}}{}}}{\goodbreak}
 }
 
@@ -221,14 +225,14 @@
 % Arguments (2): 
 % 1: Width of box
 % 2: Height of box
-\def\Box(#1,#2){\ifbool{LOESUNG}{}{\framebox{\vrule width 0pt height #2mm\vrule width #1mm
+\def\Box(#1,#2){\ifbool{SOLUTION}{}{\framebox{\vrule width 0pt height #2mm\vrule width #1mm
     height 0pt}}}
 
 % Box displayed only in exam documents
 % Arguments (2): 
 % 1: Width of box
 % 2: Height of box
-\def\KBox(#1,#2){\ifbool{KLAUSUR}{\Box(#1,#2)}{}}
+\def\KBox(#1,#2){\ifbool{EXAM}{\Box(#1,#2)}{}}
 
 % Arguments (1):
 % The solution scheme text
