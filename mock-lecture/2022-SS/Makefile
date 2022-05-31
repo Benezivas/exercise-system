@@ -11,7 +11,7 @@ clean:
 catalogue:
 	cd ../task-catalogue && $(MAKE)
 
-sheet%/exercise_sol.pdf: sheet%.tex header.sty
+sheet%/exercise_sol.pdf: sheet%.tex mock-lecture-header.sty
 	mkdir -p sheet$*;
 #	Build the exercise sheet without solutions for students
 	pdflatex -output-directory sheet$* -jobname=exercise     "\input{$<}";
@@ -31,7 +31,7 @@ sheet%/exercise_sol.pdf: sheet%.tex header.sty
 #	Cleanup
 	rm sheet$*/*.log sheet$*/*.aux
 
-exam%/exam_sol.pdf: exam%.tex header.sty
+exam%/exam_sol.pdf: exam%.tex mock-lecture-header.sty
 	mkdir -p exam$*;
 #	Build the exam as it should be handed out to students
 	pdflatex -output-directory exam$* -jobname=exam            "\def\exam{} \input{$<}";
