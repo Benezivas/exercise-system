@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 """Decompose a task catalogue (given as first argument) into separate .tex files
@@ -11,25 +11,27 @@ from pathlib import Path, PurePath
 
 def is_text_and_file_content_identical(text, filename):
     identical = True
-    if not Path.exists(filename):
+    if not Path(filename).exists():
         identical = False
     else:
         old_text = []
-        with open(filename, "r"):
+        with open(filename, "r") as f:
             old_text = f.readlines()
-        if len(old_text) != len(text):
-            identical = False
-        else:
-            for a, b in zip(text, old_text):
-                if a.strip() != b.strip():
-                    identical = False
+
+        for a, b in zip(text, old_text):
+            if a.strip() != b.strip():
+                print(a.strip())
+                print(b.strip())
+                identical = False
 
     return identical
 
 def write_lines_to_file(lines, filename):
     print("Writing file ", filename)
     with open(filename, "w") as f:
-        f.writelines(lines)
+        for line in lines:
+            f.write(line)
+            f.write("\n")
 
 def is_file_relevant(name):
     return name.startswith("sheet") or name.startswith("exam")
@@ -49,24 +51,26 @@ changed = set()
 
 in_exercise = False
 in_solution = False
+text = []
+solution = []
 for line in lines:
     line = line.strip("\n")
-    if line.lstrip().startswith("\\begin{aufgabe}"):
+    if line.lstrip().startswith("\\begin{task}"):
         in_exercise = True
-        name = re.search('^.begin{aufgabe}{(.*)}', line).group(1)
+        name = re.search('^.begin{task}{(.*)}', line).group(1)
         text = []
         solution = []
-    elif line.lstrip().startswith("\\end{aufgabe}"):
+    elif line.lstrip().startswith("\\end{task}"):
         #Write out exercise and solution to files
-        identical = is_text_and_file_content_identical(text, "snaps/{}.tex".format(name))
+        identical = is_text_and_file_content_identical(text, f"snaps/{name}.tex")
         if not identical:
-            write_lines_to_file(text, "snaps/{}.tex".format(name))
+            write_lines_to_file(text, f"snaps/{name}.tex")
             changed.add(name)
         if solution == []:
             solution = [ "\\textbf{!!!!! No solution found for this task !!!!!}" ]
-        identical = is_text_and_file_content_identical(solution, "snaps/{}-solution.tex".format(name))
+        identical = is_text_and_file_content_identical(solution, f"snaps/{name}-solution.tex")
         if not identical:
-            write_lines_to_file(solution, "snaps/{}-solution.tex".format(name))
+            write_lines_to_file(solution, f"snaps/{name}-solution.tex")
             changed.add(name)
         in_exercise = False
         in_solution = False
@@ -78,18 +82,16 @@ for line in lines:
         text.append(line)
 
 #list all subdirectories of the top repo levels directories
-possibly_relevant_directories = sum([list(dir.iterdir()) for dir in Path("../").iterdir() if dir.is_dir()], [])
+possibly_relevant_directories = sum([list(dir.iterdir()) for dir in Path("../../").iterdir() if dir.is_dir()], [])
+
 #we are only interested in those that resemble a semester folder
 relevant_directories = [Path(dir).resolve() for dir in possibly_relevant_directories
                         if dir.name.startswith("20")] # Hello year 2100 and up, I hope all is well.
 
-print(relevant_directories)
 files = []
 for dir in relevant_directories:
-    for file in [Path(dir, f) for f in Path(dir).iterdir() if is_file_relevant(f) and Path(dir, f).resolve().is_file()]:
+    for file in [Path(dir, f) for f in Path(dir).iterdir() if is_file_relevant(f.name) and Path(dir, f).resolve().is_file()]:
         files.append(file)
-
-print(files)
 
 matcher = re.compile('.*task{([^}]+)}')
 matched_tasks = []
@@ -99,15 +101,15 @@ for sheet in files:
             match = matcher.match(line)
             if match:
                 if match.group(1) in changed:
-                    print("touch " + sheet)
+                    print("touch " + sheet.name)
                     Path(sheet).touch()
                 matched_tasks.append((match.group(1), "{}/{}".format(PurePath(sheet).parent.name, PurePath(sheet).name)))
 
 with open("collection-expanded.tex", "w") as f:
     for line in lines:
-        if line.startswith("\\begin{aufgabe}"):
+        if line.startswith("\\begin{task}"):
             in_exercise = True
-            name = re.search('^.begin{aufgabe}{(.*)}', line).group(1)
+            name = re.search('^.begin{task}{(.*)}', line).group(1)
             if name in [task[0] for task in matched_tasks]:
                 line += "{\color{gray}This task was already used in: $\{$"
                 for task in matched_tasks:
@@ -123,7 +125,7 @@ with open("collection-expanded.tex", "r") as input:
         for line in input:
             if line.startswith("\\solution"):
                 in_solution = True
-            if line.startswith("\\end{aufgabe}"):
+            if line.startswith("\\end{task}"):
                 in_solution = False
             if not in_solution:
                 output.write(line.strip())
