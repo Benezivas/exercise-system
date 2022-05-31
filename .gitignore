@@ -1,0 +1,10 @@
+*/20*/*.aux
+*/20*/*.log
+*/20*/*.pdf
+*/20*/sheet*/*
+*/20*/exam*/*
+*/task-catatalogue/*.aux
+*/task-catatalogue/*.log
+*/task-catatalogue/*.pdf
+*/task-catatalogue/collection-expanded.tex
+*/task-catatalogue/collection-nosolutions.tex
