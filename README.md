@@ -64,3 +64,10 @@ geometry in the `misc/header.sty`. Add your own group or chair logo in the same
 folder.
 
 If anything is unclear or buggy, feel free to open an issue or to contact me.
+
+## Requirements
+This project requires `python>=3.6` and access to `make`.
+
+This project uses `pdflatex` to build its sheets since pdfTex should be the most
+widely available latex typesetter. If you believe in or need other TeX
+typesetters, adjust the calls in the `Makefile`s of the lectures.
