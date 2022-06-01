@@ -1,12 +1,16 @@
 SHEETPDF = $(patsubst sheet%.tex, sheet%/exercise_sol.pdf, $(wildcard sheet*.tex))
 EXAMPDF = $(patsubst exam%.tex, exam%/exam_sol.pdf, $(wildcard exam*.tex))
 
-.PHONY: all clean catalogue
+.PHONY: all clean auxcleanup catalogue
 
-all: catalogue $(SHEETPDF) $(EXAMPDF) 
+all: catalogue $(SHEETPDF) $(EXAMPDF) auxcleanup
 
 clean:
 	rm -rf sheet*/ exam*/
+
+auxcleanup:
+#	Remove remaining .aux files from sheet folders after building is complete
+	rm -rf */*.aux
 
 catalogue:
 	cd ../task-catalogue && $(MAKE)
@@ -29,7 +33,7 @@ sheet%/exercise_sol.pdf: sheet%.tex mock-lecture-header.sty ../lecture-header.st
 	pdflatex -output-directory sheet$* -jobname=exercise_sol        "\def\solution{} \input{$<}";
 
 #	Cleanup
-	rm sheet$*/*.log sheet$*/*.aux
+	rm sheet$*/*.log
 
 exam%/exam_sol.pdf: exam%.tex mock-lecture-header.sty ../lecture-header.sty ../../misc/header.sty
 	mkdir -p exam$*;

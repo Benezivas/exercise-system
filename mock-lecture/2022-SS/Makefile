@@ -3,10 +3,14 @@ EXAMPDF = $(patsubst exam%.tex, exam%/exam_sol.pdf, $(wildcard exam*.tex))
 
 .PHONY: all clean catalogue
 
-all: catalogue $(SHEETPDF) $(EXAMPDF) 
+all: catalogue $(SHEETPDF) $(EXAMPDF) auxcleanup
 
 clean:
 	rm -rf sheet*/ exam*/
+
+auxcleanup:
+#	Remove remaining .aux files from sheet folders after building is complete
+	rm -rf */*.aux
 
 catalogue:
 	cd ../task-catalogue && $(MAKE)
@@ -29,7 +33,7 @@ sheet%/exercise_sol.pdf: sheet%.tex mock-lecture-header.sty
 	pdflatex -output-directory sheet$* -jobname=exercise_sol        "\def\solution{} \input{$<}";
 
 #	Cleanup
-	rm sheet$*/*.log sheet$*/*.aux
+	rm sheet$*/*.log
 
 exam%/exam_sol.pdf: exam%.tex mock-lecture-header.sty
 	mkdir -p exam$*;
@@ -40,4 +44,4 @@ exam%/exam_sol.pdf: exam%.tex mock-lecture-header.sty
 #	Build the exam with solutions and a possibly added correction scheme (using \solscheme in tasks).
 	pdflatex -output-directory exam$* -jobname=exam_sol_scheme "\def\exam{} \def\solution{} \def\scheme{} \input{$<}";
 #	Cleanup
-	rm exam$*/*.log rm exam$*/*.aux
+	rm exam$*/*.log exam$*/*.aux
