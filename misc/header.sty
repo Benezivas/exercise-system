@@ -88,7 +88,9 @@
 % 2: Name of sheet (e.g. "Exercise Sheet")
 % 3: Running number of sheet (e.g. "03" for sheet03.tex)
 \newcommand{\buildheader}[3]{
-    \providecommand{\name}{#2}
+    \providecommand{\publdate}{#1}
+    \providecommand{\sheetname}{#2}
+    \providecommand{\runningnr}{#3}
     \noindent\parbox[l]{0.6\textwidth}{\textbf{\lecturename{} \semester}\\ \lecturer\\ \assistents}
     \noindent\parbox[r]{0.4\textwidth}{\hfill
     \includegraphics[scale=0.5]{\logo}\kern-7pt\\\makebox[0.4\textwidth][r]{\datestr: #1}}\\
@@ -96,9 +98,9 @@
     \begin{center}
         \large\centerline{\bf 
         \ifdefined\solution 
-            \name{} \withsolsstr{}
+            \sheetname{} \withsolsstr{}
         \else 
-            \name{}
+            \sheetname{}
         \fi 
         \ifx\catalogue\undefined
             #3
@@ -174,11 +176,14 @@
 % Arguments (1):
 % 1: The number of empty pages to be generated
 \newcounter{forcounter}
-\newcommand{\addpages}[1]{
+\newcommand{\emptypages}[1]{
+    
+    \setcounter{forcounter}{0}
     \forloop{forcounter}{0}{\value{forcounter} < #1}{
         \clearpage
-        \buildheader{\date{}}{\name{}}{\number{}}
+        \buildheader{\publdate{}}{\sheetname{}}{\runningnr{}} % Set in buildheader
     }
+    
 }
 
 
