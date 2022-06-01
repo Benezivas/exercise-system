@@ -58,7 +58,7 @@
 
 % Boolean switches provided by pdflatex calls to steer what should be built and what should not
 \newbool{SOLUTION} % Should solution be part of the sheet?
-\newbool{NOHOMEWORK} % Should homework tasks be part of the sheet? 
+\newbool{NOHOMEWORK} % Should homework tasks be part of the sheet? (Not used in the mock-lecture)
 \newbool{CATALOGUE} % Are we in the catalogue? (additional spacing added)
 \newbool{SCHEME} % Should the solution scheme be added?
 \newbool{EXAM} % Are we in an exam?
@@ -76,8 +76,8 @@
 % Counters used for counting up tasks inside a sheet/exam
 \newcounter{Tcount} % Tutor tasks
 \newcounter{Hcount} % Homework tasks
-\newcounter{Kcount} % Exam tasks
-\stepcounter{Kcount}
+\newcounter{Ecount} % Exam tasks
+\stepcounter{Ecount}
 
 
 
@@ -93,41 +93,28 @@
     \providecommand{\runningnr}{#3}
     \noindent\parbox[l]{0.6\textwidth}{\textbf{\lecturename{} \semester}\\ \lecturer\\ \assistents}
     \noindent\parbox[r]{0.4\textwidth}{\hfill
-    \includegraphics[scale=0.5]{\logo}\kern-7pt\\\makebox[0.4\textwidth][r]{\datestr: #1}}\\
+    \includegraphics[scale=0.5]{\logo}\kern-7pt\\\makebox[0.4\textwidth][r]{\datestr: \publdate}}\\
 
     \begin{center}
         \large\centerline{\bf 
-        \ifdefined\solution 
-            \sheetname{} \withsolsstr{}
-        \else 
-            \sheetname{}
-        \fi 
-        \ifx\catalogue\undefined
-            #3
-        \fi
+            \ifbool{SOLUTION}{
+                \sheetname{} \withsolsstr
+            }
+            {
+                \sheetname
+            }
+            \ifbool{CATALOGUE}{}
+            {\runningnr}
         }
         \ifbool{SCHEME}{\bigskip\textit{This document is not meant to be published to students!}}{}
     \end{center}
 }
 
 
-%%%% TODO: Merge these three task types into one %%%%
 % Arguments (1):
 % 1: Interal name of task
 \newcommand{\tutortask}[1]{
-    \def\taskstring{\paragraph*{\taskstr{} T\arabic{Tcount}}%
-                    \def\@currentlabel{T\arabic{Tcount}}\label{#1}~\par
-                    \stepcounter{Tcount}
-    }
-    \taskstring
-    \providebool{#1}
-    \booltrue{#1}
-    \input {\collectionpath snaps/#1}
-    \ifbool{SOLUTION}{
-        \paragraph*{\solutionstr{}}~\par\input {\collectionpath snaps/#1-solution}
-    }
-    {}
-    \boolfalse{#1}
+    \generictask{#1}{}{T}{Tcount}
 }
 
 
@@ -135,10 +122,29 @@
 % 1: Interal name of task
 % 2: Number of possible points for task
 \newcommand{\homework}[2]{
+    \generictask{#1}{(#2)}{H}{Hcount}
+}
+
+
+% Arguments (2): 
+% 1: Interal name of task
+% 2: Number of possible points for task
+\newcommand{\examtask}[2]{
+    \generictask{#1}{(#2)}{E}{Ecount}
+}
+
+
+% This makro should not be called directly but rather be wrapped as in \tutortask, \homework, \examtask
+% Arguments (4): 
+% 1: Interal name of task
+% 2: Number of possible points for task
+% 3: Prefix for task number
+% 4: Task Counter that should be incremented
+\newcommand{\generictask}[4]{
     \ifbool{NOHOMEWORK}{}{
-        \def\taskstring{\paragraph*{\taskstr{} H\arabic{Hcount}}(#2)
-                        \def\@currentlabel{H\arabic{Hcount}}\label{#1}~\par
-                        \stepcounter{Hcount}
+        \def\taskstring{\paragraph*{\taskstr{} #3\arabic{#4}}#2
+                        \def\@currentlabel{#3\arabic{#4}}\label{#1}~\par
+                        \stepcounter{#4}
         }
         \taskstring
         \providebool{#1}
@@ -150,26 +156,6 @@
         {}
         \boolfalse{#1}
     }
-}
-
-
-% Arguments (2): 
-% 1: Interal name of task
-% 2: Number of possible points for task
-\newcommand{\examtask}[2]{
-    \def\taskstring{\paragraph*{\taskstr{} E\arabic{Kcount}}(#2)
-                        \def\@currentlabel{E\arabic{Kcount}}\label{#1}~\par
-                        \stepcounter{Kcount}
-    }
-    \taskstring
-    \providebool{#1}
-    \booltrue{#1}
-    \input {\collectionpath snaps/#1}
-    \boolfalse{#1}
-    \ifbool{SOLUTION}{
-        \paragraph*{\solutionstr{}}~\par\input {\collectionpath snaps/#1-solution}
-    }
-    {}
 }
 
 
